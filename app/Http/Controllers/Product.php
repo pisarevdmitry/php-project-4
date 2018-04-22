@@ -12,26 +12,26 @@ use Illuminate\Support\Facades\Cache;
 class Product extends Controller
 {
     use Content;
-    protected $goods;
+    public function __construct()
+    {
+        parent::__construct();
+    }
     public function index($id)
     {
 
         $data = $this->auth();
         $data['cat'] = $this->getCategories();
-        $this->goods = new Goods();
         $product = $this->goods->getGoodsById($id);
         $data['product'] = $product[0];
         $random_items = $this->makeRandomItems();
         $orders = $this->getOrders();
         $data['bucket'] =count($orders['orders']);
         $data = array_merge($data, $random_items);
-
         return view('product', $data);
     }
     public function productList()
     {
         if (Auth::user() && Auth::user()->Admin) {
-            $this->goods = new Goods();
             $data['product'] = $this->goods->getAllGoods();
             return view('product-list', $data);
         }
@@ -72,7 +72,6 @@ class Product extends Controller
     }
     public function editShow($id)
     {
-        $this->goods = new Goods();
         $data['product'] = $this->goods->getGoodsById($id)[0];
         $data['title'] = "Редактирование товара Товара";
         $data['btn'] = "Изменить";
@@ -102,12 +101,12 @@ class Product extends Controller
                 $data[$key] = htmlspecialchars($data[$key], ENT_QUOTES);
             }
         }
-         $category = new Categories();
+        $category = new Categories();
         $cat = $category->getCategoryByName($data['category']);
         if (count($cat) < 1) {
             return redirect('/admin/product/store-form')->with('message', 'Категория не существует');
         };
-        $this->goods = new Goods();
+
         $product = $this->goods->checkGoods($data['name'], $cat[0]['id']);
         if (count($product) > 0) {
             return redirect('/admin/product/store-form')->with('message', 'Товар в данной категории уже существует');
@@ -158,7 +157,7 @@ class Product extends Controller
         if (count($cat) < 1) {
             return redirect("/admin/product/edit-form/{$data['id']}")->with('message', 'Категория не существует');
         };
-        $this->goods = new Goods();
+
         $product = $this->goods->checkGoods($data['name'], $cat[0]['id']);
         if (count($product) > 0 && $data['name'] !== $data['old_name']) {
             return redirect("/admin/product/edit-form/{$data['id']}")

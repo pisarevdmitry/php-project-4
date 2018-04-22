@@ -5,16 +5,12 @@ use App\Mail;
 use Illuminate\Http\Request;
 use App\Order;
 use Illuminate\Support\Facades\Auth;
-use App\Categories;
-use App\Goods;
 use App\Traits\Content;
 use PHPMailer\PHPMailer;
-use Illuminate\Support\Facades\Cache;
 
 class Orders extends Controller
 {
     use Content;
-    protected $goods;
     public function __construct()
     {
         parent::__construct();
@@ -25,15 +21,7 @@ class Orders extends Controller
             return redirect('/');
         }
         $data = $this->auth();
-        $this->goods = new Goods();
-        /*if (Cache::has("userOrders".Auth::user()->id)) {
-            dd('succ');
-        } else {
-            dd('none');
-
-        }*/
-
-        $data['cat'] = $this->getCategories();;
+        $data['cat'] = $this->getCategories();
         $data['login'] =Auth::user()->name;
         $random_items = $this->makeRandomItems();
         $orders = $this->getOrders();

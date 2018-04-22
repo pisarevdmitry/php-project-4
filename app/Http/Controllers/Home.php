@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Categories;
-use App\Goods;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use App\Traits\Content;
-use Illuminate\Support\Facades\Cache;
 
 class Home extends Controller
 {
     use Content;
-    protected $goods;
+    public function __construct()
+    {
+        parent::__construct();
+    }
     public function index()
     {
         $data = $this->auth();
-        $this->goods = new Goods();
         $all = $this->getGoods();
         $result = $this->paginate($all);
         $random_items = $this->makeRandomItems();

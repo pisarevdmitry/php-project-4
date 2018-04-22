@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Categories;
-use App\Goods;
-use App\Http\Requests\CategoryReq;
 use App\Traits\Content;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +11,10 @@ use Illuminate\Support\Facades\Cache;
 class Category extends Controller
 {
     use Content;
-    protected $goods;
+    public function __construct()
+    {
+        parent::__construct();
+    }
     public function index($id)
     {
         $data = $this->auth();
@@ -32,13 +33,12 @@ class Category extends Controller
         if (!isset($current_goods)) {
             $current_goods = [];
         }
-        $this->goods = new Goods();
         $result = $this->paginate($current_goods);
         $random_items = $this->makeRandomItems();
         $orders = $this->getOrders();
         $data['bucket'] =count($orders['orders']);
         $data = array_merge($data, $result, $random_items);
-        $data['cat'] = $this->getCategories();
+        $data['cat'] =$all;
         $current = array_slice($current_goods, ($data['current_page'] - 1) * 6, 6);
         $data['goods'] = $current;
         return view('category', $data);
@@ -66,7 +66,6 @@ class Category extends Controller
     }
     public function delete($id)
     {
-        $this->goods = new Goods();
         $data = $this->goods->getGoodsByCategory($id);
         $product = new Product();
         foreach ($data as $key => $value) {
