@@ -35,6 +35,8 @@
                 <label for="name" class="col-sm-4 control-label">Имя категории</label>
                 <div class="col-sm-8">
                     <input type="text" class="form-control" id="name"  name="name" value="{{$cat['name']}}">
+                    <input type="hidden" class="form-control" id="name"  name="old_name"
+                           value="{{ $cat['name']? $cat['name'] : 'old_name' }}">
                 </div>
             </div>
             <div class="form-group">
@@ -48,8 +50,12 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <button type="submit" class="btn btn-default">{{$btn}}</button>
                     <br><br>
+                    @foreach ($errors->all() as $error)
+                        <div class="error">{{ $error }}</div>
+                        <br>
+                    @endforeach
                     @if(Session::has('message'))
-                        <div class="mail">
+                        <div class="error">
                             {{Session::get('message')}}
                         </div>
                         <br><br>

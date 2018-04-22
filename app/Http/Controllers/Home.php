@@ -7,6 +7,7 @@ use App\Goods;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Traits\Content;
+use Illuminate\Support\Facades\Cache;
 
 class Home extends Controller
 {
@@ -16,15 +17,15 @@ class Home extends Controller
     {
         $data = $this->auth();
         $this->goods = new Goods();
-        $all = $this->goods->all()->toArray();
+        $all = $this->getGoods();
         $result = $this->paginate($all);
         $random_items = $this->makeRandomItems();
         $orders = $this->getOrders();
         $data['bucket'] =count($orders['orders']);
         $data = array_merge($data, $result, $random_items);
-        $data['cat'] = Categories::all()->toArray();
-        $data['goods'] = $this->goods->getGoods(($data['current_page'] - 1) * 6);
-        return view('index', $data);
+        $data['cat'] = $this->getCategories();
+        $data['goods'] = array_slice($all, ($data['current_page'] - 1) * 6, 6);
+         return view('index', $data);
     }
 
 }

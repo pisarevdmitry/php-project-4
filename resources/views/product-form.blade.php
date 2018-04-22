@@ -71,6 +71,10 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <button type="submit" class="btn btn-default" >{{$btn}}</button>
                     <br><br>
+                    @foreach ($errors->all() as $error)
+                        <div class="error">{{ $error }}</div>
+                        <br>
+                    @endforeach
                     @if(Session::has('message'))
                         <div class="mail">
                             {{Session::get('message')}}

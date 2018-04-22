@@ -1,10 +1,39 @@
 <?php
 namespace App\Traits;
 use App\Goods;
+use App\Categories;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+
 trait Content
 {
+    protected function getGoods()
+    {
+        if (Cache::has('goods')) {
+            $data = Cache::get('goods');
+            return $data;
+        } else {
+            $minutes = 10;
+            $data = Cache::remember('goods', $minutes, function() {
+                return $this->goods->all()->toArray();
+            });
+            return $data;
+        }
+    }
+    protected function getCategories()
+    {
+        if (Cache::has('Categories')) {
+            $data = Cache::get('Categories');
+            return $data;
+        } else {
+            $minutes = 10;
+            $data = Cache::remember('Categories', $minutes, function() {
+                return Categories::all()->toArray();
+            });
+            return $data;
+        }
+    }
     protected function auth()
     {
         if (Auth::user()) {
@@ -23,7 +52,7 @@ trait Content
     }
     protected function makeRandomItems()
     {
-        $all_goods = $this->goods->all()->toArray();
+        $all_goods = $this->getGoods();
         $random = rand(0, count($all_goods)-1);
         $num = count($all_goods);
         for ($i= 1,$count = $num; $i <= 3; $i++) {
@@ -35,7 +64,7 @@ trait Content
                     'price' => ''
                 ];
             } else {
-                $data["our_goods"][] = $all_goods[ $random];
+                $data["our_goods"][] = $all_goods[rand(0, count($all_goods)-1)];
             }
             $count--;
         }
@@ -83,5 +112,6 @@ trait Content
             return $data;
         }
     }
+
 
 }

@@ -16,3 +16,6 @@ body {
 .form-horizontal {
   width: 70%;
 }
+.error{
+  color: red;
+}

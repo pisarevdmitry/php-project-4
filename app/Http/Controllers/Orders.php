@@ -9,6 +9,7 @@ use App\Categories;
 use App\Goods;
 use App\Traits\Content;
 use PHPMailer\PHPMailer;
+use Illuminate\Support\Facades\Cache;
 
 class Orders extends Controller
 {
@@ -25,7 +26,14 @@ class Orders extends Controller
         }
         $data = $this->auth();
         $this->goods = new Goods();
-        $data['cat'] = Categories::all()->toArray();
+        /*if (Cache::has("userOrders".Auth::user()->id)) {
+            dd('succ');
+        } else {
+            dd('none');
+
+        }*/
+
+        $data['cat'] = $this->getCategories();;
         $data['login'] =Auth::user()->name;
         $random_items = $this->makeRandomItems();
         $orders = $this->getOrders();
@@ -36,6 +44,7 @@ class Orders extends Controller
 
     public function register(Request $request)
     {
+
         $data = $request->all();
         foreach ($data as $key => $value) {
             if (empty($value)) {
@@ -48,7 +57,7 @@ class Orders extends Controller
                         'customer_email' => $data['email'],
                         'product_id' => $data['id'],
                         'customer_id' => $data['customer']]);
-        return json_encode(['message' =>'Заказ зарегистрирован']);
+         return json_encode(['message' =>'Заказ зарегистрирован']);
     }
     public function confirm()
     {

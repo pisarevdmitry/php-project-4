@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Traits\Content;
 use Intervention\Image\Facades\Image as Image;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class Product extends Controller
 {
@@ -16,7 +17,7 @@ class Product extends Controller
     {
 
         $data = $this->auth();
-        $data['cat'] = Categories::all()->toArray();
+        $data['cat'] = $this->getCategories();
         $this->goods = new Goods();
         $product = $this->goods->getGoodsById($id);
         $data['product'] = $product[0];
@@ -47,11 +48,11 @@ class Product extends Controller
                 'price' => '',
                 'categories_name' => '',
                 'id' => 'none'
-            ],
+             ],
             'btn' => 'Cоздать'];
-        return view('product-form',$data);
+        return view('product-form', $data);
     }
-    public function delete($id, $flag=false)
+    public function delete($id, $flag = false)
     {
         $order =new Order();
         $product =  Goods::find($id)->toArray()['photo'];
@@ -63,6 +64,7 @@ class Product extends Controller
             unlink("./img/cover/$product");
         }
         Goods::find($id)->delete();
+        Cache::forget('goods');
         if ($flag) {
             return true;
         }
@@ -79,20 +81,28 @@ class Product extends Controller
     }
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+            'price' => 'required|numeric',
+            'file' => 'required|image|mimes:jpg,png,jpeg'
+        ], [
+            'name.required' => 'Введите Название товара',
+            'description.required' => 'Введите Описание товара',
+            'price.required' => ' Введите цену товара',
+            'price.numeric' => ' Цена должна быть числом',
+            'file.required' => ' Загрузите изображение товара',
+            'file.image' => ' Не поддерживаемое расширение файла',
+            'file.mimes' => ' Не поддерживаемый тип файлов',
+        ]);
         $data = $request->all();
         foreach ($data as $key => $value) {
-            if (empty($value)) {
-                return redirect('/admin/product/store-form')->with('message', 'Заполните все поля');
-            }
-            if ($key === 'price' && !is_numeric($value)) {
-                return redirect('/admin/product/store-form')->with('message', 'Цена должна быть числом');
-            }
             if ($key !== 'file') {
                 $data[$key] = strip_tags($value);
                 $data[$key] = htmlspecialchars($data[$key], ENT_QUOTES);
             }
         }
-        $category = new Categories();
+         $category = new Categories();
         $cat = $category->getCategoryByName($data['category']);
         if (count($cat) < 1) {
             return redirect('/admin/product/store-form')->with('message', 'Категория не существует');
@@ -103,43 +113,41 @@ class Product extends Controller
             return redirect('/admin/product/store-form')->with('message', 'Товар в данной категории уже существует');
         };
         $file = $request->file;
-        $type = $file->getClientMimeType();
-
-        if (preg_match('/jpg/', $_FILES['file']['name']) or preg_match('/png/', $_FILES['file']['name'])) {
-            if (preg_match('/jpg/', $type) or preg_match('/png/', $type)
-                or preg_match('/jpeg/', $type)) {
-                do {
-                    $name = md5(microtime() . rand(0, 9999));
-                    $filesource ="./img/cover/$name.jpg";
-                } while (file_exists($filesource));
-                $this->goods->create([
+        do {
+             $name = md5(microtime() . rand(0, 9999));
+             $filesource ="./img/cover/$name.jpg";
+        } while (file_exists($filesource));
+        $this->goods->create([
                     'name' => $data['name'],
                     'price' => $data['price'],
                     'photo' => "$name.jpg",
                     'description' =>$data['description'],
                     'category_id' => $cat[0]['id']
-                ]);
-                $image = Image::make($file->getRealPath());
-                $image ->resize(600, 300)->save("./img/cover/$name.jpg");
-                return redirect('/admin/product/store-form')->with('message', 'Товар создан');
-            } else {
-                return redirect('/admin/product/store-form')->with('message', 'Не поддерживаемый тип файлов');
-
-            }
-        } else {
-                    return redirect('/admin/product/store-form')->with('message', 'Не поддерживаемое расширение файла');
-        }
+        ]);
+        $image = Image::make($file->getRealPath());
+        $image ->resize(600, 300)->save("./img/cover/$name.jpg");
+        Cache::forget('goods');
+        return redirect('/admin/product/store-form')->with('message', 'Товар создан');
     }
+
     public function edit(Request $request)
     {
-         $data = $request->all();
-         foreach ($data as $key => $value) {
-            if (empty($value)) {
-                return redirect("/admin/product/edit-form/{$data['id']}")->with('message', 'Заполните все поля');
-            }
-            if ($key === 'price' && !is_numeric($value)) {
-                return redirect("/admin/product/edit-form/{$data['id']}")->with('message', 'Цена должна быть числом');
-            }
+        $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+            'price' => 'required|numeric',
+            'file' => 'required|image|mimes:jpg,png,jpeg'
+        ], [
+            'name.required' => 'Введите Название товара',
+            'description.required' => 'Введите Описание товара',
+            'price.required' => ' Введите цену товара',
+            'price.numeric' => ' Цена должна быть числом',
+            'file.required' => ' Загрузите изображение товара',
+            'file.image' => ' Не поддерживаемое расширение файла',
+            'file.mimes' => ' Не поддерживаемый тип файлов',
+        ]);
+        $data = $request->all();
+        foreach ($data as $key => $value) {
             if ($key !== 'file') {
                 $data[$key] = strip_tags($value);
                 $data[$key] = htmlspecialchars($data[$key], ENT_QUOTES);
@@ -157,36 +165,25 @@ class Product extends Controller
                    ->with('message', 'Товар в данной категории уже существует');
         };
         $file = $request->file;
-        $type = $file->getClientMimeType();
-        if (preg_match('/jpg/', $_FILES['file']['name']) or preg_match('/png/', $_FILES['file']['name'])) {
-            if (preg_match('/jpg/', $type) or preg_match('/png/', $type)
-                or preg_match('/jpeg/', $type)) {
-                $old_file = $this->goods->find($data['id'])->toArray()['photo'];
-                if (file_exists("./img/cover/$old_file")) {
-                    unlink("./img/cover/$old_file");
-                }
-                do {
-                    $name = md5(microtime() . rand(0, 9999));
-                    $filesource ="./img/cover/$name.jpg";
-                } while (file_exists($filesource));
-                $this->goods->goodsUpdate($data['id'], [
+        $old_file = $this->goods->find($data['id'])->toArray()['photo'];
+        if (file_exists("./img/cover/$old_file")) {
+            unlink("./img/cover/$old_file");
+        }
+        do {
+             $name = md5(microtime() . rand(0, 9999));
+             $filesource ="./img/cover/$name.jpg";
+        } while (file_exists($filesource));
+        $this->goods->goodsUpdate($data['id'], [
                     'name' => $data['name'],
                     'price' => $data['price'],
                     'photo' => "$name.jpg",
                     'description' =>$data['description'],
                     'category_id' => $cat[0]['id']
-                ]);
-                $image = Image::make($file->getRealPath());
-                $image ->resize(600, 300)->save("./img/cover/$name.jpg");
-                return redirect("/admin/product/edit-form/{$data['id']}")->with('message', 'Товар Изменен');
-            } else {
-                return redirect("/admin/product/edit-form/{$data['id']}")
-                    ->with('message', 'Не поддерживаемый тип файлов');
+        ]);
+        $image = Image::make($file->getRealPath());
+        $image ->resize(600, 300)->save("./img/cover/$name.jpg");
+        Cache::forget('goods');
+        return redirect("/admin/product/edit-form/{$data['id']}")->with('message', 'Товар Изменен');
 
-            }
-        } else {
-            return redirect("/admin/product/edit-form/{$data['id']}")
-                ->with('message', 'Не поддерживаемое расширение файла');
-        }
     }
 }

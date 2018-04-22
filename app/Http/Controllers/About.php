@@ -13,7 +13,7 @@ class About extends Controller
     public function index()
     {
         $data = $this->auth();
-        $data['cat'] = Categories::all()->toArray();
+        $data['cat'] = $this->getCategories();;
         $this->goods = new Goods();
         $random_items = $this->makeRandomItems();
         $orders = $this->getOrders();
