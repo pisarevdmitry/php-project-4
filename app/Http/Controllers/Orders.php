@@ -27,6 +27,7 @@ class Orders extends Controller
         $orders = $this->getOrders();
         $data['bucket'] =count($orders['orders']);
         $data = array_merge($data, $random_items, $orders);
+        $data['last_news'] = $this->getLastNews();
          return view('cart', $data);
     }
 

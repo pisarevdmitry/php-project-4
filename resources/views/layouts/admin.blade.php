@@ -43,6 +43,7 @@
                 <li><a href="/admin/product">Список Товаров</a></li>
                 <li><a href="/admin/category">Список Категорий</a></li>
                 <li class=""><a href="/admin/orders">Список Заказов</a></li>
+                <li class=""><a href="/admin/news">Список Новостей</a></li>
                 <li><a href="/admin/mail">Смена Уведомления</a></li>
             </ul>
         </div><!--/.nav-collapse -->

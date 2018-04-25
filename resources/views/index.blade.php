@@ -8,8 +8,9 @@
         </div>
         <div class="content-head__search-block">
             <div class="search-container">
-                <form class="search-container__form">
-                    <input type="text" class="search-container__form__input">
+                <form class="search-container__form" action="/search/goods" method="get">
+
+                    <input type="text" class="search-container__form__input" name="search">
                     <button class="search-container__form__btn">search</button>
                 </form>
             </div>
@@ -24,7 +25,7 @@
                     </div>
                     <div class="products-columns__item__thumbnail">
                         <a href="/product/{{$item['id']}}" class="products-columns__item__thumbnail__link">
-                            <img src="img/cover/{{$item['photo']}}" alt="Preview-image" class="products-columns__item__thumbnail__img">
+                            <img src="/img/cover/{{$item['photo']}}" alt="Preview-image" class="products-columns__item__thumbnail__img">
                         </a>
                     </div>
                     <div class="products-columns__item__description">

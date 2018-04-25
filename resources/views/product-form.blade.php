@@ -42,7 +42,12 @@
             <div class="form-group">
                 <label for="category" class="col-sm-4 control-label">Категория товара</label>
                 <div class="col-sm-8">
-                   <input type="text" class="form-control" id="category"  name="category" value="{{$product['categories_name']}}">
+                  <select class="form-control" name="category">
+                      @foreach ($cat as $category)
+                          <option {{$product['category_id'] === $category['id'] ? 'selected':''}}
+                                  value="{{$category['name']}}">{{$category['name']}}</option>
+                      @endforeach
+                  </select>
 
                 </div>
             </div>

@@ -27,6 +27,7 @@ class Product extends Controller
         $orders = $this->getOrders();
         $data['bucket'] =count($orders['orders']);
         $data = array_merge($data, $random_items);
+        $data['last_news'] = $this->getLastNews();
         return view('product', $data);
     }
     public function productList()
@@ -47,9 +48,11 @@ class Product extends Controller
                 'description' => '',
                 'price' => '',
                 'categories_name' => '',
-                'id' => 'none'
+                'id' => 'none',
+                 'category_id'=> ''
              ],
             'btn' => 'Cоздать'];
+        $data['cat'] = $this->getCategories();
         return view('product-form', $data);
     }
     public function delete($id, $flag = false)
@@ -76,6 +79,8 @@ class Product extends Controller
         $data['title'] = "Редактирование товара Товара";
         $data['btn'] = "Изменить";
         $data['route'] = '/admin/product/edit';
+        $data['cat'] = $this->getCategories();
+        //dd($data);
         return view('product-form', $data);
     }
     public function store(Request $request)

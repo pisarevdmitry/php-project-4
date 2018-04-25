@@ -3,9 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Goods extends Model
 {
+    use Searchable;
     protected $table = 'goods';
     protected $guarded = ['id'];
     public function getGoods($offset)
@@ -49,5 +51,15 @@ class Goods extends Model
         $data = $this->find($id)->update($data);
         return true;
     }
+    public function getScoutKey()
+    {
+        return $this->name;
+    }
+    public function searchGoods($search)
+    {
+        $data = $this->where('name', 'LIKE', "%$search%") ->get();
+        return $data->toArray();
+    }
+
 
 }

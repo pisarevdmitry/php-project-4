@@ -2,6 +2,8 @@
 namespace App\Traits;
 use App\Goods;
 use App\Categories;
+
+use App\NewsModel;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -15,11 +17,32 @@ trait Content
             return $data;
         } else {
             $minutes = 10;
-            $data = Cache::remember('goods', $minutes, function() {
+            $data = Cache::remember('goods', $minutes, function () {
                 return $this->goods->all()->toArray();
             });
             return $data;
         }
+    }
+    protected function getNews()
+    {
+
+        if (Cache::has('news')) {
+            $data = Cache::get('news');
+            return $data;
+        } else {
+            $minutes = 10;
+            $data = Cache::remember('news', $minutes, function () {
+                $news = new NewsModel();
+                return $news->getAllNews();
+            });
+            return $data;
+        }
+    }
+    protected function getLastNews()
+    {
+
+        $news = $this->getNews();
+        return array_slice($news, 0, 3);
     }
     protected function getCategories()
     {

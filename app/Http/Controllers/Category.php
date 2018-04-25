@@ -41,6 +41,7 @@ class Category extends Controller
         $data['cat'] =$all;
         $current = array_slice($current_goods, ($data['current_page'] - 1) * 6, 6);
         $data['goods'] = $current;
+        $data['last_news'] = $this->getLastNews();
         return view('category', $data);
     }
     public function CategoryList()

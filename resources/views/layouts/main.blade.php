@@ -20,7 +20,7 @@
             <ul class="nav-list">
                 <li class="nav-list__item"><a href="/" class="nav-list__item__link">Главная</a></li>
                 <li class="nav-list__item"><a href="/" class="nav-list__item__link">Мои заказы</a></li>
-                <li class="nav-list__item"><a href="#" class="nav-list__item__link">Новости</a></li>
+                <li class="nav-list__item"><a href="/news" class="nav-list__item__link">Новости</a></li>
                 <li class="nav-list__item"><a href="/about" class="nav-list__item__link">О компании</a></li>
                 @if($admin)
                     <li class="nav-list__item"><a href="/admin/mail" class="nav-list__item__link">Админка</a></li>
@@ -68,18 +68,14 @@
                 <div class="sidebar-item__title">Последние новости</div>
                 <div class="sidebar-item__content">
                     <div class="sidebar-news">
-                        <div class="sidebar-news__item">
-                            <div class="sidebar-news__item__preview-news"><img src="/img/cover/game-2.jpg" alt="image-new" class="sidebar-new__item__preview-new__image"></div>
-                            <div class="sidebar-news__item__title-news"><a href="#" class="sidebar-news__item__title-news__link">О новых играх в режиме VR</a></div>
-                        </div>
-                        <div class="sidebar-news__item">
-                            <div class="sidebar-news__item__preview-news"><img src="/img/cover/game-1.jpg" alt="image-new" class="sidebar-new__item__preview-new__image"></div>
-                            <div class="sidebar-news__item__title-news"><a href="#" class="sidebar-news__item__title-news__link">О новых играх в режиме VR</a></div>
-                        </div>
-                        <div class="sidebar-news__item">
-                            <div class="sidebar-news__item__preview-news"><img src="/img/cover/game-4.jpg" alt="image-new" class="sidebar-new__item__preview-new__image"></div>
-                            <div class="sidebar-news__item__title-news"><a href="#" class="sidebar-news__item__title-news__link">О новых играх в режиме VR</a></div>
-                        </div>
+                        @foreach($last_news as $news)
+                            <div class="sidebar-news__item">
+                                <div class="sidebar-news__item__preview-news"><img src="/img/news/{{$news['photo']}}" alt="image-new" class="sidebar-new__item__preview-new__image"></div>
+                                <div class="sidebar-news__item__title-news"><a href="/news/article/{{$news['id']}}" class="sidebar-news__item__title-news__link">{{$news['header']}}</a></div>
+                            </div>
+                        @endforeach
+
+
                     </div>
                 </div>
             </div>
